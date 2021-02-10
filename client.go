@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"path"
 	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -22,7 +23,7 @@ type Client struct {
 	eventsLock sync.RWMutex
 	events     map[string]*caller
 	acks       map[int]*caller
-	id         int
+	id         int64
 	namespace  string
 }
 
@@ -47,11 +48,14 @@ func NewClient(uri string, opts *Options) (client *Client, err error) {
 	if err != nil {
 		return
 	}
-
+	socketId, err := strconv.ParseInt(socket.Id(), 0, 64)
+	if err != nil {
+		return
+	}
 	client = &Client{
-		opts: opts,
-		conn: socket,
-
+		opts:   opts,
+		conn:   socket,
+		id:     socketId,
 		events: make(map[string]*caller),
 		acks:   make(map[int]*caller),
 	}

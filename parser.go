@@ -55,7 +55,7 @@ type frameWriter interface {
 type packet struct {
 	Type         packetType
 	NSP          string
-	Id           int
+	Id           int64
 	Data         interface{}
 	attachNumber int
 }
