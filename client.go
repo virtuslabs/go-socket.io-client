@@ -4,7 +4,6 @@ import (
 	"net/url"
 	"path"
 	"reflect"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -23,7 +22,7 @@ type Client struct {
 	eventsLock sync.RWMutex
 	events     map[string]*caller
 	acks       map[int]*caller
-	id         int64
+	Id         int
 	namespace  string
 }
 
@@ -48,14 +47,11 @@ func NewClient(uri string, opts *Options) (client *Client, err error) {
 	if err != nil {
 		return
 	}
-	socketId, err := strconv.ParseInt(socket.Id(), 0, 64)
-	if err != nil {
-		return
-	}
+
 	client = &Client{
-		opts:   opts,
-		conn:   socket,
-		id:     socketId,
+		opts: opts,
+		conn: socket,
+
 		events: make(map[string]*caller),
 		acks:   make(map[int]*caller),
 	}
@@ -117,13 +113,13 @@ func (client *Client) sendId(args []interface{}) (int, error) {
 	client.eventsLock.Lock()
 	packet := packet{
 		Type: _EVENT,
-		Id:   client.id,
+		Id:   client.Id,
 		NSP:  client.namespace,
 		Data: args,
 	}
-	client.id++
-	if client.id < 0 {
-		client.id = 0
+	client.Id++
+	if client.Id < 0 {
+		client.Id = 0
 	}
 	client.eventsLock.Unlock()
 
